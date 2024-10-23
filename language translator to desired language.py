@@ -1,15 +1,13 @@
-from googletrans import Translator, LANGUAGES
+from deep_translator import GoogleTranslator
 
-def get_language_code(language_name):
-    for code, name in LANGUAGES.items():
-        if name.lower() == language_name.lower():
-            return code
-    return None
-
-def translate_text(text, dest_language='en'):
-    translator = Translator()
-    translation = translator.translate(text, dest=dest_language)
-    return translation.text, translation.src
+def translate_text(text, target_language):
+    try:
+        # Automatically detect the source language and translate to the target language
+        translated_text = GoogleTranslator(source='auto', target=target_language).translate(text)
+        return translated_text
+    except Exception as e:
+        print(f"Error during translation: {e}")
+        return None
 
 if __name__ == '__main__':
     while True:
@@ -21,14 +19,7 @@ if __name__ == '__main__':
             print("Exiting...")
             break
         
-        # Detect the language of the input text
-        translator = Translator()
-        detected_lang = translator.detect(text_to_translate).lang
-        
-        # Print detected language and language code
-        print(f"Detected language: {LANGUAGES[detected_lang]} ({detected_lang})")
-        
-        # Prompt the user to enter the target language name
+        # Prompt the user to enter the full target language name (e.g., 'French', 'Spanish')
         target_language_name = input("Enter the full language name to translate to (e.g., 'French'): ")
         
         # Check if the user wants to quit
@@ -36,20 +27,9 @@ if __name__ == '__main__':
             print("Exiting...")
             break
         
-        # Get the language code for the target language name
-        dest_language = get_language_code(target_language_name)
-        
-        # Validate the destination language
-        if not dest_language:
-            print(f"Error: Language '{target_language_name}' not recognized. Please try again.")
-            continue
-        
         # Translate the text
-        translated_text, source_lang = translate_text(text_to_translate, dest_language)
+        translated_text = translate_text(text_to_translate, target_language_name)
         
-        # Check if the detected language and target language are the same
-        if detected_lang == dest_language:
-            print(f"The text is already in {LANGUAGES[dest_language]}.")
-        else:
-            # Print translated text and source language
-            print(f"Translated text ({LANGUAGES[source_lang]} to {LANGUAGES[dest_language]}): {translated_text}\n")
+        if translated_text:
+            # Print the translated text
+            print(f"Translated text: {translated_text}\n")
